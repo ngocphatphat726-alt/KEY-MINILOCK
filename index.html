@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>MINILOCK ADMIN - Key Generator</title>
+
+    <!-- ===== TẢI FONTS TRỰC TIẾP - KHÔNG MÃ HÓA ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- ===== FIREBASE SDK - TẢI TRỰC TIẾP ===== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js">
+    </script>
+
+    <style>
+        /* ===== ALL CSS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #e8f4f8;
+            color: #0a2a3a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bubbles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            background: rgba(0, 150, 255, 0.04);
+            border-radius: 50%;
+            animation: floatBubble linear infinite;
+        }
+
+        @keyframes floatBubble {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-110vh) scale(0.2);
+                opacity: 0;
+            }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 50%, rgba(0, 100, 255, 0.03) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 24px 20px 28px;
+            box-shadow: 0 20px 60px rgba(0, 50, 150, 0.08), 0 0 40px rgba(0, 100, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .app-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .app-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .app-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 100, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #0066ff, #00ccff, #0066ff);
+            box-shadow: 0 0 30px rgba(0, 100, 255, 0.3);
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 150, 255, 0.06);
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(0, 100, 255, 0.25);
+        }
+
+        .brand-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0a2a3a;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text span {
+            color: #0066ff;
+        }
+
+        .brand-text small {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5a7a8a;
+            letter-spacing: 0.5px;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #5a7a8a;
+            background: rgba(0, 150, 255, 0.04);
+            padding: 6px 14px 6px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 150, 255, 0.06);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+            animation: pulse-dot 2s infinite;
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            animation: none;
+        }
+
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.85);
+            }
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.06);
+            color: #ef4444;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .page-title {
+            text-align: center;
+            padding: 12px 0 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-title h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0a2a3a;
+            letter-spacing: -0.5px;
+        }
+
+        .page-title p {
+            color: #5a7a8a;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .form-section {
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section .section-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0066ff;
+            margin-bottom: 12px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0a2a3a;
+            margin-bottom: 6px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 150, 255, 0.03);
+            border: 1px solid rgba(0, 150, 255, 0.06);
+            border-radius: 12px;
+            color: #0a2a3a;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group select option {
+            background: #fff;
+            color: #0a2a3a;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: #0066ff;
+            background: rgba(0, 150, 255, 0.06);
+            box-shadow: 0 0 0 4px rgba(0, 100, 255, 0.04);
+        }
+
+        .form-group input::placeholder {
+            color: #a0b8c8;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            box-shadow: 0 4px 20px rgba(0, 100, 255, 0.15);
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 100, 255, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: rgba(239, 68, 68, 0.08);
+            color: #ef4444;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            border: 1px solid rgba(239, 68, 68, 0.06);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-danger:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: rgba(0, 150, 255, 0.04);
+            color: #0066ff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            border: 1px solid rgba(0, 150, 255, 0.06);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 150, 255, 0.08);
+            border-color: rgba(0, 150, 255, 0.1);
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-group .btn-primary,
+        .btn-group .btn-danger,
+        .btn-group .btn-secondary {
+            margin-top: 0;
+        }
+
+        .key-list-section,
+        .admin-list-section {
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .key-list-header,
+        .admin-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .key-list-header h3,
+        .admin-list-header h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0a2a3a;
+        }
+
+        .key-list-header span,
+        .admin-list-header span {
+            color: #5a7a8a;
+            font-size: 12px;
+        }
+
+        .key-item,
+        .admin-item {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 150, 255, 0.04);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .key-item:hover,
+        .admin-item:hover {
+            border-color: rgba(0, 150, 255, 0.08);
+        }
+
+        .key-item .key-info,
+        .admin-item .admin-info {
+            flex: 1;
+        }
+
+        .key-item .key-code {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0066ff;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .key-item .key-details,
+        .admin-item .admin-details {
+            font-size: 11px;
+            color: #5a7a8a;
+            margin-top: 2px;
+        }
+
+        .key-item .key-details span {
+            margin-right: 12px;
+        }
+
+        .key-item .key-status {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .key-item .key-status.active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .key-item .key-status.expired {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .key-item .key-status.locked {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .key-item .key-actions,
+        .admin-item .admin-actions {
+            display: flex;
+            gap: 6px;
+            margin-left: 10px;
+        }
+
+        .key-item .key-actions button,
+        .admin-item .admin-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .key-item .key-actions .btn-del,
+        .admin-item .admin-actions .btn-del {
+            background: rgba(239, 68, 68, 0.08);
+            color: #ef4444;
+        }
+
+        .key-item .key-actions .btn-del:hover,
+        .admin-item .admin-actions .btn-del:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .key-item .key-actions .btn-check {
+            background: rgba(0, 150, 255, 0.08);
+            color: #0066ff;
+        }
+
+        .key-item .key-actions .btn-check:hover {
+            background: rgba(0, 150, 255, 0.15);
+        }
+
+        .empty-list {
+            text-align: center;
+            color: #a0b8c8;
+            padding: 30px 0;
+            font-size: 14px;
+        }
+
+        .loading-text {
+            text-align: center;
+            color: #a0b8c8;
+            padding: 20px 0;
+            font-size: 14px;
+        }
+
+        /* ===== LOGIN OVERLAY ===== */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(232, 244, 248, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.32, 1);
+        }
+
+        .login-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 36px 28px 32px;
+            border: 1px solid rgba(0, 150, 255, 0.06);
+            box-shadow: 0 30px 80px rgba(0, 50, 150, 0.06);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .login-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .login-box::-webkit-scrollbar-thumb {
+            background: rgba(0, 100, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #0066ff, #00ccff);
+        }
+
+        .login-box .brand-center {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .login-box .brand-center .brand-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 12px;
+            font-size: 20px;
+            box-shadow: 0 4px 30px rgba(0, 100, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            color: #fff;
+            font-weight: 900;
+        }
+
+        .login-box .brand-center h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0a2a3a;
+            letter-spacing: -0.5px;
+        }
+
+        .login-box .brand-center h2 span {
+            color: #0066ff;
+        }
+
+        .login-box .brand-center p {
+            color: #5a7a8a;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: rgba(0, 150, 255, 0.04);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: transparent;
+            color: #5a7a8a;
+        }
+
+        .login-tab.active {
+            background: #fff;
+            color: #0066ff;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .login-tab:hover:not(.active) {
+            color: #0a2a3a;
+        }
+
+        .login-input-group {
+            margin-bottom: 14px;
+        }
+
+        .login-input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0a2a3a;
+            margin-bottom: 6px;
+        }
+
+        .login-input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #f0f6fa;
+            border: 2px solid rgba(0, 150, 255, 0.06);
+            border-radius: 14px;
+            color: #0a2a3a;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .login-input-group input:focus {
+            border-color: #0066ff;
+            box-shadow: 0 0 0 4px rgba(0, 100, 255, 0.04);
+            background: #ffffff;
+        }
+
+        .login-input-group input::placeholder {
+            color: #a0b8c8;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            box-shadow: 0 4px 20px rgba(0, 100, 255, 0.15);
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 100, 255, 0.2);
+        }
+
+        .btn-login:active {
+            transform: scale(0.98);
+        }
+
+        .login-error {
+            color: #ef4444;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .login-success {
+            color: #22c55e;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .login-success.show {
+            display: block;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 12px 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 150, 255, 0.06);
+            font-size: 14px;
+            font-weight: 500;
+            color: #0a2a3a;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.32, 1);
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            max-width: 90%;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-color: rgba(34, 197, 94, 0.15);
+        }
+        .toast.error {
+            border-color: rgba(239, 68, 68, 0.15);
+        }
+        .toast.info {
+            border-color: rgba(0, 100, 255, 0.08);
+        }
+
+        .anti-debug-overlay {
+            position: fixed;
+            inset: 0;
+            background: #e8f4f8;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .anti-debug-overlay.show {
+            display: flex;
+        }
+
+        .anti-debug-overlay h1 {
+            color: #ef4444;
+            font-size: 28px;
+        }
+
+        .anti-debug-overlay p {
+            color: #5a7a8a;
+            font-size: 16px;
+            max-width: 400px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .status-badge.online {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .status-badge.offline {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        @media (max-width: 400px) {
+            .app-container {
+                padding: 16px 14px 20px;
+                border-radius: 24px;
+            }
+            .brand-text {
+                font-size: 16px;
+            }
+            .login-box {
+                padding: 24px 18px 20px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+            .key-item,
+            .admin-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .key-item .key-actions,
+            .admin-item .admin-actions {
+                justify-content: flex-end;
+                margin-left: 0;
+            }
+            .header-status {
+                font-size: 10px;
+                padding: 4px 10px 4px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bubbles Background -->
+    <div class="bubbles" id="bubblesContainer"></div>
+
+    <!-- Anti-Debug -->
+    <div id="antiDebugOverlay" class="anti-debug-overlay">
+        <h1>⛔ TRUY CẬP BỊ TỪ CHỐI</h1>
+        <p>Phát hiện công cụ dành cho nhà phát triển. Vui lòng đóng tất cả công cụ để tiếp tục sử dụng ứng dụng.</p>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <div class="brand-center">
+                <div class="brand-icon">ML</div>
+                <h2>MINI<span>LOCK</span> <span style="font-size:14px;color:#5a7a8a;">ADMIN</span></h2>
+                <p>Key Generator Panel</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="login-tabs">
+                <button class="login-tab active" onclick="switchTab('login')" id="tabLogin">Đăng nhập</button>
+                <button class="login-tab" onclick="switchTab('register')" id="tabRegister">Đăng ký</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="login-input-group">
+                    <label>Tên đăng nhập</label>
+                    <input type="text" id="loginUser" placeholder="Nhập tên đăng nhập" autocomplete="off" />
+                </div>
+                <div class="login-input-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="loginPass" placeholder="Nhập mật khẩu" autocomplete="off" />
+                </div>
+                <button class="btn-login" onclick="handleLogin()">ĐĂNG NHẬP</button>
+                <div id="loginError" class="login-error">Sai tài khoản hoặc mật khẩu</div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" style="display:none;">
+                <div class="login-input-group">
+                    <label>Tên đăng nhập</label>
+                    <input type="text" id="regUser" placeholder="Chọn tên đăng nhập" autocomplete="off" />
+                </div>
+                <div class="login-input-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="regPass" placeholder="Chọn mật khẩu" autocomplete="off" />
+                </div>
+                <div class="login-input-group">
+                    <label>Nhập lại mật khẩu</label>
+                    <input type="password" id="regPassConfirm" placeholder="Nhập lại mật khẩu" autocomplete="off" />
+                </div>
+                <button class="btn-login" onclick="handleRegister()">ĐĂNG KÝ</button>
+                <div id="regError" class="login-error"></div>
+                <div id="regSuccess" class="login-success"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="brand">
+                <div class="brand-icon">ML</div>
+                <div class="brand-text">MINI<span>LOCK</span> <small>| ADMIN</small></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:11px;color:#5a7a8a;" id="adminUser">admin</span>
+                <span class="status-badge online" id="fbStatus">● Online</span>
+                <button class="logout-btn" onclick="handleLogout()">Đăng xuất</button>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="page-title">
+            <h1>KEY GENERATOR</h1>
+            <p>Quản lý và tạo key cho người dùng</p>
+        </div>
+
+        <!-- Form Tạo Key -->
+        <div class="form-section">
+            <span class="section-label">🔑 TẠO KEY MỚI</span>
+
+            <div class="form-group">
+                <label>Loại key</label>
+                <select id="keyType">
+                    <option value="vĩnh viễn">Vĩnh Viễn</option>
+                    <option value="3 tháng">3 Tháng</option>
+                    <option value="2 tháng">2 Tháng</option>
+                    <option value="1 tháng">1 Tháng</option>
+                    <option value="1 tuần">1 Tuần</option>
+                    <option value="3 ngày">3 Ngày</option>
+                    <option value="1 ngày">1 Ngày</option>
+                    <option value="11 giờ">11 Giờ</option>
+                    <option value="5 giờ">5 Giờ</option>
+                    <option value="2 giờ">2 Giờ</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Số thiết bị tối đa</label>
+                <input type="number" id="maxDevices" value="1" min="1" max="10" />
+            </div>
+
+            <div class="form-group">
+                <label>Ghi chú (tùy chọn)</label>
+                <input type="text" id="keyNote" placeholder="VD: Key cho khách hàng A" />
+            </div>
+
+            <button class="btn-primary" onclick="createKey()">🔑 TẠO KEY</button>
+
+            <div class="btn-group" style="margin-top:10px;">
+                <button class="btn-secondary" onclick="checkKeyInput()">✅ Kiểm tra Key</button>
+                <button class="btn-danger" onclick="deleteAllKeys()">🗑️ Xóa tất cả Key</button>
+            </div>
+
+            <div style="margin-top:10px;">
+                <input type="text" id="checkKeyInput" placeholder="Nhập key để kiểm tra" style="width:100%;padding:12px 16px;background:rgba(0,150,255,0.03);border:1px solid rgba(0,150,255,0.06);border-radius:12px;color:#0a2a3a;font-size:14px;outline:none;font-family:inherit;margin-bottom:8px;" />
+            </div>
+        </div>
+
+        <!-- Danh sách Key -->
+        <div class="key-list-section">
+            <div class="key-list-header">
+                <h3>📋 DANH SÁCH KEY</h3>
+                <span id="keyCount">0 keys</span>
+            </div>
+            <div id="keyList">
+                <div class="loading-text">⏳ Đang tải...</div>
+            </div>
+        </div>
+
+        <!-- Quản lý Admin -->
+        <div class="admin-list-section">
+            <div class="admin-list-header">
+                <h3>👤 QUẢN LÝ ADMIN</h3>
+                <span id="adminCount">0 accounts</span>
+            </div>
+            <div id="adminList">
+                <div class="loading-text">⏳ Đang tải...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN ENGINE ===== -->
+    <script>
+        // ================================================
+        // MINILOCK ADMIN v3.0 - KẾT NỐI FIREBASE NHANH
+        // KHÔNG CẦN ADMIN CHÍNH DUYỆT
+        // ================================================
+
+        // ================================================
+        // FIREBASE CONFIG - MÃ HÓA NHẸ
+        // ================================================
+        function decode(s) {
+            let r = '';
+            for (let i = 0; i < s.length; i += 2) {
+                let c = parseInt(s.substr(i, 2), 16);
+                r += String.fromCharCode(c ^ 0x55);
+            }
+            return r.split('').reverse().join('');
+        }
+
+        const _cfg = "7yI2KSYvLiYnNSQnKCskLSUnNSQnKyUpLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUn";
+        const parts = decode(_cfg).split('|');
+
+        const firebaseConfig = {
+            apiKey: parts[0],
+            authDomain: parts[1],
+            databaseURL: parts[2],
+            projectId: parts[3],
+            storageBucket: parts[4],
+            messagingSenderId: parts[5],
+            appId: parts[6]
+        };
+
+        // ================================================
+        // KHỞI TẠO FIREBASE NGAY LẬP TỨC
+        // ================================================
+        let firebaseDB = null;
+        let firebaseReady = false;
+
+        try {
+            if (typeof firebase !== 'undefined') {
+                if (firebase.apps.length === 0) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                firebaseDB = firebase.database();
+                firebaseReady = true;
+                document.getElementById('fbStatus').textContent = '● Online';
+                document.getElementById('fbStatus').className = 'status-badge online';
+                console.log('✅ Firebase ready');
+            }
+        } catch (e) {
+            console.error('Firebase init error:', e);
+            document.getElementById('fbStatus').textContent = '● Offline';
+            document.getElementById('fbStatus').className = 'status-badge offline';
+        }
+
+        // ================================================
+        // BUBBLES
+        // ================================================
+        (function createBubbles() {
+            const container = document.getElementById('bubblesContainer');
+            for (let i = 0; i < 30; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = 20 + Math.random() * 80;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDuration = (15 + Math.random() * 25) + 's';
+                bubble.style.animationDelay = (Math.random() * 20) + 's';
+                container.appendChild(bubble);
+            }
+        })();
+
+        // ================================================
+        // TOAST
+        // ================================================
+        let toastTimer = null;
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast ' + (type || 'info');
+            clearTimeout(toastTimer);
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ================================================
+        // TABS
+        // ================================================
+        window.switchTab = function(tab) {
+            document.getElementById('tabLogin').className = 'login-tab' + (tab === 'login' ? ' active' : '');
+            document.getElementById('tabRegister').className = 'login-tab' + (tab === 'register' ? ' active' : '');
+            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+            document.getElementById('loginError').classList.remove('show');
+            document.getElementById('regError').classList.remove('show');
+            document.getElementById('regSuccess').classList.remove('show');
+        };
+
+        // ================================================
+        // AUTH FUNCTIONS
+        // ================================================
+
+        async function checkUser(user) {
+            if (!firebaseReady) return null;
+            try {
+                const snap = await firebaseDB.ref('admins/' + user).once('value');
+                return snap.val();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ================================================
+        // REGISTER - KHÔNG CẦN DUYỆT
+        // ================================================
+        window.handleRegister = async function() {
+            const user = document.getElementById('regUser').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+            const passConfirm = document.getElementById('regPassConfirm').value.trim();
+            const errorEl = document.getElementById('regError');
+            const successEl = document.getElementById('regSuccess');
+
+            errorEl.classList.remove('show');
+            successEl.classList.remove('show');
+
+            if (!user || user.length < 3) {
+                errorEl.textContent = 'Tên đăng nhập phải có ít nhất 3 ký tự';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            if (!pass || pass.length < 4) {
+                errorEl.textContent = 'Mật khẩu phải có ít nhất 4 ký tự';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            if (pass !== passConfirm) {
+                errorEl.textContent = 'Mật khẩu không khớp';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            if (!firebaseReady) {
+                errorEl.textContent = 'Đang kết nối Firebase...';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            try {
+                const existing = await checkUser(user);
+                if (existing) {
+                    errorEl.textContent = 'Tên đăng nhập đã tồn tại';
+                    errorEl.classList.add('show');
+                    return;
+                }
+
+                await firebaseDB.ref('admins/' + user).set({
+                    password: pass,
+                    created: Date.now(),
+                    status: 'approved',
+                    createdBy: 'register'
+                });
+
+                successEl.textContent = '✅ Đăng ký thành công! Vui lòng đăng nhập.';
+                successEl.classList.add('show');
+
+                document.getElementById('regUser').value = '';
+                document.getElementById('regPass').value = '';
+                document.getElementById('regPassConfirm').value = '';
+
+                showToast('✅ Đăng ký thành công!', 'success');
+
+                setTimeout(() => {
+                    switchTab('login');
+                }, 1500);
+            } catch (e) {
+                errorEl.textContent = '❌ Lỗi: ' + e.message;
+                errorEl.classList.add('show');
+            }
+        };
+
+        // ================================================
+        // LOGIN
+        // ================================================
+        window.handleLogin = async function() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const errorEl = document.getElementById('loginError');
+
+            errorEl.classList.remove('show');
+
+            if (!user || !pass) {
+                errorEl.textContent = 'Vui lòng nhập đầy đủ thông tin';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            if (!firebaseReady) {
+                errorEl.textContent = 'Đang kết nối Firebase...';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            try {
+                const data = await checkUser(user);
+                if (!data) {
+                    errorEl.textContent = 'Tài khoản không tồn tại';
+                    errorEl.classList.add('show');
+                    return;
+                }
+
+                if (data.password !== pass) {
+                    errorEl.textContent = 'Sai mật khẩu';
+                    errorEl.classList.add('show');
+                    return;
+                }
+
+                if (data.status !== 'approved') {
+                    errorEl.textContent = 'Tài khoản chưa được kích hoạt';
+                    errorEl.classList.add('show');
+                    return;
+                }
+
+                currentAdmin = user;
+                localStorage.setItem('mladmin_session', user);
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('adminUser').textContent = user;
+                showToast('✅ Đăng nhập thành công!', 'success');
+                loadAllData();
+            } catch (e) {
+                errorEl.textContent = '❌ Lỗi: ' + e.message;
+                errorEl.classList.add('show');
+            }
+        };
+
+        // ================================================
+        // LOGOUT
+        // ================================================
+        window.handleLogout = function() {
+            localStorage.removeItem('mladmin_session');
+            currentAdmin = null;
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+            document.getElementById('adminUser').textContent = 'admin';
+            showToast('Đã đăng xuất', 'info');
+            document.getElementById('keyList').innerHTML = '<div class="loading-text">⏳ Đang tải...</div>';
+            document.getElementById('adminList').innerHTML = '<div class="loading-text">⏳ Đang tải...</div>';
+        };
+
+        // ================================================
+        // KEY MANAGEMENT
+        // ================================================
+        let currentAdmin = null;
+
+        function generateKey() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let key = '';
+            for (let i = 0; i < 10; i++) {
+                key += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return key;
+        }
+
+        function getDaysFromType(type) {
+            const map = {
+                'vĩnh viễn': 99999,
+                '3 tháng': 90,
+                '2 tháng': 60,
+                '1 tháng': 30,
+                '1 tuần': 7,
+                '3 ngày': 3,
+                '1 ngày': 1,
+                '11 giờ': 0.458,
+                '5 giờ': 0.208,
+                '2 giờ': 0.083
+            };
+            return map[type] || 30;
+        }
+
+        window.createKey = async function() {
+            if (!currentAdmin) {
+                showToast('Vui lòng đăng nhập trước', 'error');
+                return;
+            }
+
+            if (!firebaseReady) {
+                showToast('Đang kết nối Firebase...', 'error');
+                return;
+            }
+
+            const keyType = document.getElementById('keyType').value;
+            const maxDevices = parseInt(document.getElementById('maxDevices').value) || 1;
+            const note = document.getElementById('keyNote').value.trim() || '';
+
+            if (maxDevices < 1) {
+                showToast('Số thiết bị phải lớn hơn 0', 'error');
+                return;
+            }
+
+            const key = generateKey();
+            const created = Date.now();
+            const days = getDaysFromType(keyType);
+            const expire = days === 99999 ? Infinity : created + (days * 86400000);
+
+            try {
+                await firebaseDB.ref('keys/' + key).set({
+                    active: true,
+                    created: created,
+                    expire: expire,
+                    days: days,
+                    maxDevices: maxDevices,
+                    type: keyType,
+                    note: note,
+                    createdBy: currentAdmin,
+                    devices: {}
+                });
+
+                showToast('✅ Key đã được tạo: ' + key, 'success');
+                document.getElementById('keyNote').value = '';
+                await loadKeys();
+            } catch (e) {
+                showToast('❌ Lỗi tạo key: ' + e.message, 'error');
+            }
+        };
+
+        async function loadKeys() {
+            const keyListEl = document.getElementById('keyList');
+            const keyCountEl = document.getElementById('keyCount');
+
+            if (!firebaseReady) {
+                keyListEl.innerHTML = '<div class="loading-text">⏳ Đang kết nối...</div>';
+                keyCountEl.textContent = '0 keys';
+                return;
+            }
+
+            if (!currentAdmin) {
+                keyListEl.innerHTML = '<div class="empty-list">Vui lòng đăng nhập</div>';
+                keyCountEl.textContent = '0 keys';
+                return;
+            }
+
+            try {
+                const snap = await firebaseDB.ref('keys').once('value');
+                if (!snap.exists()) {
+                    keyListEl.innerHTML = '<div class="empty-list">Chưa có key nào</div>';
+                    keyCountEl.textContent = '0 keys';
+                    return;
+                }
+
+                const keys = snap.val();
+                const now = Date.now();
+                let html = '';
+                let count = 0;
+
+                Object.entries(keys).forEach(([k, d]) => {
+                    if (d.createdBy === currentAdmin) {
+                        count++;
+                        const expired = d.expire !== Infinity && now > d.expire;
+                        const devices = d.devices ? Object.keys(d.devices).length : 0;
+                        const status = !d.active ? 'locked' : expired ? 'expired' : 'active';
+                        const statusLabel = !d.active ? '🔒 Khóa' : expired ? '⏰ Hết hạn' : '✅ Hợp lệ';
+                        const statusClass = !d.active ? 'locked' : expired ? 'expired' : 'active';
+                        const expireText = d.expire === Infinity ? 'Vĩnh viễn' : new Date(d.expire).toLocaleString(
+                            'vi-VN');
+
+                        html += `
+                        <div class="key-item">
+                            <div class="key-info">
+                                <div class="key-code">${k}</div>
+                                <div class="key-details">
+                                    <span>📅 ${d.type || d.days + ' ngày'}</span>
+                                    <span>📱 ${devices}/${d.maxDevices}</span>
+                                    <span>📝 ${d.note || 'Không ghi chú'}</span>
+                                    <span>⏰ ${expireText}</span>
+                                </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span class="key-status ${statusClass}">${statusLabel}</span>
+                                <div class="key-actions">
+                                    <button class="btn-check" onclick="checkSingleKey('${k}')">🔍</button>
+                                    <button class="btn-del" onclick="deleteSingleKey('${k}')">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                      `;
+                    }
+                });
+
+                keyCountEl.textContent = count + ' keys';
+                if (count === 0) {
+                    keyListEl.innerHTML = '<div class="empty-list">Chưa có key nào</div>';
+                } else {
+                    keyListEl.innerHTML = html;
+                }
+            } catch (e) {
+                keyListEl.innerHTML = '<div class="empty-list">❌ Lỗi tải danh sách</div>';
+            }
+        }
+
+        window.deleteSingleKey = async function(key) {
+            if (!currentAdmin) return;
+            if (!confirm('Xác nhận xóa key: ' + key + '?')) return;
+
+            try {
+                const snap = await firebaseDB.ref('keys/' + key).once('value');
+                if (!snap.exists()) {
+                    showToast('Key không tồn tại', 'error');
+                    return;
+                }
+
+                const data = snap.val();
+                if (data.createdBy !== currentAdmin) {
+                    showToast('Bạn không có quyền xóa key này', 'error');
+                    return;
+                }
+
+                await firebaseDB.ref('keys/' + key).remove();
+                showToast('🗑️ Đã xóa key: ' + key, 'success');
+                await loadKeys();
+            } catch (e) {
+                showToast('❌ Lỗi xóa: ' + e.message, 'error');
+            }
+        };
+
+        window.deleteAllKeys = async function() {
+            if (!currentAdmin) return;
+
+            try {
+                const snap = await firebaseDB.ref('keys').once('value');
+                if (!snap.exists()) {
+                    showToast('Chưa có key nào để xóa', 'info');
+                    return;
+                }
+
+                const keys = snap.val();
+                let count = 0;
+                let keysToDelete = [];
+
+                for (const [k, d] of Object.entries(keys)) {
+                    if (d.createdBy === currentAdmin) {
+                        keysToDelete.push(k);
+                        count++;
+                    }
+                }
+
+                if (count === 0) {
+                    showToast('Bạn không có key nào để xóa', 'info');
+                    return;
+                }
+
+                if (!confirm('⚠️ Xác nhận xóa ' + count + ' key?')) return;
+                if (!confirm('⚠️ Hành động này không thể hoàn tác!')) return;
+
+                for (const k of keysToDelete) {
+                    await firebaseDB.ref('keys/' + k).remove();
+                }
+
+                showToast('🗑️ Đã xóa ' + count + ' key', 'success');
+                await loadKeys();
+            } catch (e) {
+                showToast('❌ Lỗi xóa: ' + e.message, 'error');
+            }
+        };
+
+        window.checkSingleKey = async function(key) {
+            if (!currentAdmin) return;
+
+            try {
+                const snap = await firebaseDB.ref('keys/' + key).once('value');
+                if (!snap.exists()) {
+                    showToast('❌ Key không tồn tại', 'error');
+                    return;
+                }
+
+                const d = snap.val();
+                if (d.createdBy !== currentAdmin) {
+                    showToast('Bạn không có quyền kiểm tra key này', 'error');
+                    return;
+                }
+
+                const devices = d.devices ? Object.keys(d.devices).length : 0;
+                const expired = d.expire !== Infinity && Date.now() > d.expire;
+                const status = d.active && !expired ? '✅ Hợp lệ' : expired ? '⏰ Hết hạn' : '🔒 Khóa';
+                const expireText = d.expire === Infinity ? 'Vĩnh viễn' : new Date(d.expire).toLocaleString('vi-VN');
+
+                showToast(
+                    `🔑 ${key}\n📅 ${d.type || d.days + ' ngày'}\n📱 ${devices}/${d.maxDevices}\n📝 ${d.note || 'Không ghi chú'}\n⏰ ${expireText}\n📌 ${status}`,
+                    'info'
+                );
+            } catch (e) {
+                showToast('❌ Lỗi kiểm tra: ' + e.message, 'error');
+            }
+        };
+
+        window.checkKeyInput = function() {
+            const key = document.getElementById('checkKeyInput').value.trim().toUpperCase();
+            if (!key) {
+                showToast('Vui lòng nhập key để kiểm tra', 'error');
+                return;
+            }
+            if (key.length !== 10) {
+                showToast('Key phải có 10 ký tự', 'error');
+                return;
+            }
+            checkSingleKey(key);
+            document.getElementById('checkKeyInput').value = '';
+        };
+
+        document.getElementById('checkKeyInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.checkKeyInput();
+        });
+
+        // ================================================
+        // ADMIN MANAGEMENT
+        // ================================================
+
+        async function loadAdmins() {
+            const adminListEl = document.getElementById('adminList');
+            const adminCountEl = document.getElementById('adminCount');
+
+            if (!firebaseReady) {
+                adminListEl.innerHTML = '<div class="loading-text">⏳ Đang kết nối...</div>';
+                adminCountEl.textContent = '0 accounts';
+                return;
+            }
+
+            if (!currentAdmin) {
+                adminListEl.innerHTML = '<div class="empty-list">Vui lòng đăng nhập</div>';
+                adminCountEl.textContent = '0 accounts';
+                return;
+            }
+
+            try {
+                const snap = await firebaseDB.ref('admins').once('value');
+                if (!snap.exists()) {
+                    adminListEl.innerHTML = '<div class="empty-list">Chưa có tài khoản admin nào</div>';
+                    adminCountEl.textContent = '0 accounts';
+                    return;
+                }
+
+                const admins = snap.val();
+                const entries = Object.entries(admins);
+                adminCountEl.textContent = entries.length + ' accounts';
+
+                let html = '';
+
+                for (const [user, data] of entries) {
+                    const created = data.created ? new Date(data.created).toLocaleString('vi-VN') : 'N/A';
+                    const status = data.status || 'approved';
+                    const statusLabel = status === 'approved' ? '✅ Hoạt động' : '⏳ Chờ duyệt';
+                    const statusClass = status === 'approved' ? 'approved' : 'pending';
+
+                    let actions = '';
+                    if (user !== currentAdmin) {
+                        actions = `
+                            <button class="btn-del" onclick="deleteAdmin('${user}')">🗑️ Xóa</button>
+                        `;
+                    } else {
+                        actions = `<span style="font-size:10px;color:#0066ff;">👤 Bạn</span>`;
+                    }
+
+                    html += `
+                    <div class="admin-item">
+                        <div class="admin-info">
+                            <div class="admin-name">
+                                👤 ${user}
+                                <span class="admin-status ${statusClass}">${statusLabel}</span>
+                            </div>
+                            <div class="admin-details">📅 Tạo: ${created}</div>
+                        </div>
+                        <div class="admin-actions">
+                            ${actions}
+                        </div>
+                    </div>
+                  `;
+                }
+
+                adminListEl.innerHTML = html;
+            } catch (e) {
+                adminListEl.innerHTML = '<div class="empty-list">❌ Lỗi tải danh sách</div>';
+            }
+        }
+
+        window.deleteAdmin = async function(user) {
+            if (user === currentAdmin) {
+                showToast('❌ Không thể xóa tài khoản đang đăng nhập!', 'error');
+                return;
+            }
+
+            if (!confirm('Xác nhận xóa tài khoản admin: ' + user + '?')) return;
+
+            try {
+                await firebaseDB.ref('admins/' + user).remove();
+                showToast('🗑️ Đã xóa admin: ' + user, 'success');
+                await loadAdmins();
+            } catch (e) {
+                showToast('❌ Lỗi xóa: ' + e.message, 'error');
+            }
+        };
+
+        // ================================================
+        // LOAD ALL DATA
+        // ================================================
+
+        async function loadAllData() {
+            await loadKeys();
+            await loadAdmins();
+        }
+
+        // ================================================
+        // CHECK SESSION
+        // ================================================
+
+        function checkSession() {
+            const session = localStorage.getItem('mladmin_session');
+            if (session && firebaseReady) {
+                currentAdmin = session;
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('adminUser').textContent = session;
+                showToast('Welcome back!', 'success');
+                loadAllData();
+                return;
+            }
+
+            if (session && !firebaseReady) {
+                // Đợi Firebase ready
+                setTimeout(checkSession, 500);
+                return;
+            }
+
+            document.getElementById('loginOverlay').classList.remove('hidden');
+        }
+
+        // ================================================
+        // ENTER KEY SUPPORT
+        // ================================================
+        document.getElementById('loginUser').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('loginPass').focus();
+        });
+        document.getElementById('loginPass').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.handleLogin();
+        });
+        document.getElementById('regUser').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('regPass').focus();
+        });
+        document.getElementById('regPass').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('regPassConfirm').focus();
+        });
+        document.getElementById('regPassConfirm').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.handleRegister();
+        });
+
+        // ================================================
+        // INIT - KIỂM TRA SESSION NGAY
+        // ================================================
+
+        // Nếu Firebase đã ready thì check session luôn
+        if (firebaseReady) {
+            checkSession();
+        } else {
+            // Đợi Firebase
+            let attempts = 0;
+            const waitForFirebase = setInterval(() => {
+                if (firebaseReady) {
+                    clearInterval(waitForFirebase);
+                    checkSession();
+                }
+                attempts++;
+                if (attempts > 20) {
+                    clearInterval(waitForFirebase);
+                    document.getElementById('fbStatus').textContent = '● Offline';
+                    document.getElementById('fbStatus').className = 'status-badge offline';
+                    checkSession();
+                }
+            }, 300);
+        }
+
+        // ================================================
+        // ULTIMATE ANTI-CRACK
+        // ================================================
+
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            const ctrl = e.ctrlKey;
+            const shift = e.shiftKey;
+
+            if (key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+
+            if (ctrl && ['u', 'U', 's', 'S', 'p', 'P'].includes(key)) {
+                e.preventDefault();
+                return false;
+            }
+
+            if (ctrl && shift && ['I', 'J', 'C', 'U', 'O', 'P', 'E', 'L', 'H'].includes(key.toUpperCase())) {
+                e.preventDefault();
+                return false;
+            }
+
+            if (ctrl && (key === 'h' || key === 'a')) {
+                e.preventDefault();
+                return false;
+            }
+
+            return true;
+        });
+
+        let devtoolsOpen = false;
+        const antiDebug = document.getElementById('antiDebugOverlay');
+
+        setInterval(function() {
+            const start = performance.now();
+            debugger;
+            const end = performance.now();
+            if (end - start > 100) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    antiDebug.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                }
+            } else {
+                if (devtoolsOpen) {
+                    devtoolsOpen = false;
+                    antiDebug.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }, 200);
+
+        const origLog = console.log;
+        console.log = function() {
+            if (arguments.length > 0 && typeof arguments[0] === 'string') {
+                if (arguments[0].includes('MINILOCK') || arguments[0].includes('config') ||
+                    arguments[0].includes('firebase') || arguments[0].includes('key')) {
+                    return;
+                }
+            }
+            origLog.apply(this, arguments);
+        };
+
+        const origClear = console.clear;
+        console.clear = function() {
+            showToast('⚠️ Cannot clear console', 'error');
+            origClear.apply(this, arguments);
+        };
+
+        document.addEventListener('selectstart', (e) => e.preventDefault());
+        document.addEventListener('dragstart', (e) => e.preventDefault());
+
+        document.querySelectorAll('input').forEach(el => {
+            el.addEventListener('contextmenu', (e) => e.preventDefault());
+        });
+
+        document.documentElement.addEventListener('copy', (e) => e.preventDefault());
+        document.documentElement.addEventListener('cut', (e) => e.preventDefault());
+
+        console.log('%c🔒 MINILOCK ADMIN v3.0', 'color:#0066ff;font-size:20px;font-weight:bold;');
+        console.log('%c⚡ Fast Firebase Connection | Fully Encrypted', 'color:#00ccff;font-size:12px;');
+    </script>
+
+</body>
+</html>
