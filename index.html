@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>MINILOCK ADMIN - Key Generator</title>
+    <title>KEY GENERATOR - Admin</title>
 
     <!-- ===== TẢI FONTS TRỰC TIẾP ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -23,6 +23,7 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
 
         body {
@@ -112,6 +113,17 @@
             box-shadow: 0 0 30px rgba(0, 100, 255, 0.3);
         }
 
+        .app-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #0066ff, #00ccff, #0066ff, transparent);
+            opacity: 0.3;
+        }
+
         .app-header {
             display: flex;
             justify-content: space-between;
@@ -125,39 +137,43 @@
         .brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .brand-icon {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             background: linear-gradient(135deg, #0066ff, #00ccff);
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 900;
             color: #fff;
-            box-shadow: 0 4px 20px rgba(0, 100, 255, 0.25);
+            box-shadow: 0 4px 25px rgba(0, 100, 255, 0.25);
+            font-family: 'Orbitron', sans-serif;
         }
 
         .brand-text {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 800;
             color: #0a2a3a;
             letter-spacing: -0.5px;
         }
 
-        .brand-text span {
+        .brand-text .pro {
             color: #0066ff;
         }
 
         .brand-text small {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: #5a7a8a;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: block;
+            margin-top: -2px;
         }
 
         .header-status {
@@ -224,10 +240,14 @@
         }
 
         .page-title h1 {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
             color: #0a2a3a;
             letter-spacing: -0.5px;
+        }
+
+        .page-title h1 .pro {
+            color: #0066ff;
         }
 
         .page-title p {
@@ -394,36 +414,31 @@
             margin-top: 0;
         }
 
-        .key-list-section,
-        .admin-list-section {
+        .key-list-section {
             margin-top: 20px;
             position: relative;
             z-index: 1;
         }
 
-        .key-list-header,
-        .admin-list-header {
+        .key-list-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
 
-        .key-list-header h3,
-        .admin-list-header h3 {
+        .key-list-header h3 {
             font-size: 15px;
             font-weight: 700;
             color: #0a2a3a;
         }
 
-        .key-list-header span,
-        .admin-list-header span {
+        .key-list-header span {
             color: #5a7a8a;
             font-size: 12px;
         }
 
-        .key-item,
-        .admin-item {
+        .key-item {
             background: rgba(255, 255, 255, 0.5);
             border: 1px solid rgba(0, 150, 255, 0.04);
             border-radius: 12px;
@@ -436,13 +451,11 @@
             backdrop-filter: blur(10px);
         }
 
-        .key-item:hover,
-        .admin-item:hover {
+        .key-item:hover {
             border-color: rgba(0, 150, 255, 0.08);
         }
 
-        .key-item .key-info,
-        .admin-item .admin-info {
+        .key-item .key-info {
             flex: 1;
         }
 
@@ -454,8 +467,7 @@
             letter-spacing: 0.5px;
         }
 
-        .key-item .key-details,
-        .admin-item .admin-details {
+        .key-item .key-details {
             font-size: 11px;
             color: #5a7a8a;
             margin-top: 2px;
@@ -489,15 +501,19 @@
             color: #f59e0b;
         }
 
-        .key-item .key-actions,
-        .admin-item .admin-actions {
+        .key-item .key-status.vip {
+            background: rgba(255, 215, 0, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .key-item .key-actions {
             display: flex;
             gap: 6px;
             margin-left: 10px;
         }
 
-        .key-item .key-actions button,
-        .admin-item .admin-actions button {
+        .key-item .key-actions button {
             padding: 6px 12px;
             border: none;
             border-radius: 8px;
@@ -508,24 +524,29 @@
             font-family: inherit;
         }
 
-        .key-item .key-actions .btn-del,
-        .admin-item .admin-actions .btn-del {
+        .key-item .key-actions .btn-del {
             background: rgba(239, 68, 68, 0.08);
             color: #ef4444;
         }
 
-        .key-item .key-actions .btn-del:hover,
-        .admin-item .admin-actions .btn-del:hover {
+        .key-item .key-actions .btn-del:hover {
             background: rgba(239, 68, 68, 0.15);
         }
 
-        .key-item .key-actions .btn-check {
+        .key-item .key-actions .btn-copy {
             background: rgba(0, 150, 255, 0.08);
             color: #0066ff;
+            border: 1px solid rgba(0, 150, 255, 0.06);
         }
 
-        .key-item .key-actions .btn-check:hover {
+        .key-item .key-actions .btn-copy:hover {
             background: rgba(0, 150, 255, 0.15);
+        }
+
+        .key-item .key-actions .btn-copy.copied {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-color: rgba(34, 197, 94, 0.1);
         }
 
         .empty-list {
@@ -540,6 +561,84 @@
             color: #a0b8c8;
             padding: 20px 0;
             font-size: 14px;
+        }
+
+        /* ===== KEY CREATED POPUP ===== */
+        .key-created-popup {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #0066ff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            box-shadow: 0 8px 30px rgba(0, 100, 255, 0.1);
+            animation: popIn 0.4s cubic-bezier(0.16, 1, 0.32, 1);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .key-created-popup .key-display {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0066ff;
+            font-family: monospace;
+            letter-spacing: 1px;
+            text-align: center;
+            padding: 8px;
+            background: rgba(0, 150, 255, 0.04);
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+
+        .key-created-popup .key-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .key-created-popup .key-actions button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .key-created-popup .key-actions .btn-copy-popup {
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 100, 255, 0.15);
+        }
+
+        .key-created-popup .key-actions .btn-copy-popup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 100, 255, 0.2);
+        }
+
+        .key-created-popup .key-actions .btn-copy-popup.copied {
+            background: #22c55e;
+        }
+
+        .key-created-popup .key-actions .btn-close-popup {
+            background: rgba(239, 68, 68, 0.08);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.06);
+        }
+
+        .key-created-popup .key-actions .btn-close-popup:hover {
+            background: rgba(239, 68, 68, 0.12);
         }
 
         /* ===== LOGIN OVERLAY ===== */
@@ -610,6 +709,7 @@
             background: linear-gradient(135deg, #0066ff, #00ccff);
             color: #fff;
             font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
         }
 
         .login-box .brand-center h2 {
@@ -619,7 +719,7 @@
             letter-spacing: -0.5px;
         }
 
-        .login-box .brand-center h2 span {
+        .login-box .brand-center h2 .pro {
             color: #0066ff;
         }
 
@@ -815,6 +915,35 @@
             max-width: 400px;
         }
 
+        .view-source-blocker {
+            position: fixed;
+            inset: 0;
+            background: #e8f4f8;
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .view-source-blocker.show {
+            display: flex;
+        }
+
+        .view-source-blocker h1 {
+            color: #ef4444;
+            font-size: 32px;
+        }
+
+        .view-source-blocker p {
+            color: #5a7a8a;
+            font-size: 16px;
+            max-width: 400px;
+        }
+
         .status-badge {
             display: inline-block;
             padding: 2px 10px;
@@ -834,13 +963,36 @@
             color: #ef4444;
         }
 
+        .pro-badge-bottom {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 100, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.06);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #5a7a8a;
+            z-index: 2;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            backdrop-filter: blur(10px);
+        }
+
+        .pro-badge-bottom i {
+            color: #0066ff;
+            margin-right: 4px;
+        }
+
         @media (max-width: 400px) {
             .app-container {
                 padding: 16px 14px 20px;
                 border-radius: 24px;
             }
             .brand-text {
-                font-size: 16px;
+                font-size: 18px;
             }
             .login-box {
                 padding: 24px 18px 20px;
@@ -851,20 +1003,27 @@
             .btn-group {
                 grid-template-columns: 1fr;
             }
-            .key-item,
-            .admin-item {
+            .key-item {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 8px;
             }
-            .key-item .key-actions,
-            .admin-item .admin-actions {
+            .key-item .key-actions {
                 justify-content: flex-end;
                 margin-left: 0;
             }
             .header-status {
                 font-size: 10px;
                 padding: 4px 10px 4px 8px;
+            }
+            .key-created-popup {
+                padding: 12px 14px;
+            }
+            .key-created-popup .key-display {
+                font-size: 16px;
+            }
+            .key-created-popup .key-actions {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -874,6 +1033,12 @@
     <!-- Bubbles Background -->
     <div class="bubbles" id="bubblesContainer"></div>
 
+    <!-- View Source Blocker -->
+    <div class="view-source-blocker" id="viewSourceBlocker">
+        <h1>⛔ TRUY CẬP BỊ TỪ CHỐI</h1>
+        <p>Phát hiện đang cố gắng xem mã nguồn. Vui lòng tắt công cụ dành cho nhà phát triển để tiếp tục.</p>
+    </div>
+
     <!-- Anti-Debug -->
     <div id="antiDebugOverlay" class="anti-debug-overlay">
         <h1>⛔ TRUY CẬP BỊ TỪ CHỐI</h1>
@@ -882,13 +1047,16 @@
 
     <div id="toast" class="toast"></div>
 
+    <!-- Pro Badge -->
+    <div class="pro-badge-bottom"><i class="fas fa-crown"></i> KEY GENERATOR PRO</div>
+
     <!-- Login Overlay -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <div class="brand-center">
-                <div class="brand-icon">ML</div>
-                <h2>MINI<span>LOCK</span> <span style="font-size:14px;color:#5a7a8a;">ADMIN</span></h2>
-                <p>Key Generator Panel</p>
+                <div class="brand-icon">KG</div>
+                <h2>KEY <span class="pro">GEN</span> PRO</h2>
+                <p>Admin Panel - Key Generator</p>
             </div>
 
             <!-- Tabs -->
@@ -928,6 +1096,10 @@
                 <button class="btn-login" onclick="handleRegister()">ĐĂNG KÝ</button>
                 <div id="regError" class="login-error"></div>
                 <div id="regSuccess" class="login-success"></div>
+                <p style="text-align:center;font-size:11px;color:#5a7a8a;margin-top:8px;">
+                    ⏳ Tài khoản cần được Admin duyệt<br />
+                    <span style="font-size:10px;color:#a0b8c8;">Chờ duyệt để đăng nhập</span>
+                </p>
             </div>
         </div>
     </div>
@@ -937,8 +1109,11 @@
         <!-- Header -->
         <div class="app-header">
             <div class="brand">
-                <div class="brand-icon">ML</div>
-                <div class="brand-text">MINI<span>LOCK</span> <small>| ADMIN</small></div>
+                <div class="brand-icon">KG</div>
+                <div>
+                    <div class="brand-text">KEY<span class="pro">GEN</span> PRO</div>
+                    <small>⚡ ADMIN PANEL</small>
+                </div>
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:11px;color:#5a7a8a;" id="adminUser">admin</span>
@@ -949,49 +1124,49 @@
 
         <!-- Title -->
         <div class="page-title">
-            <h1>KEY GENERATOR</h1>
-            <p>Quản lý và tạo key cho người dùng</p>
+            <h1>KEY <span class="pro">GENERATOR</span> PRO</h1>
+            <p>Tạo key tùy chỉnh thời gian cho MINILOCK</p>
         </div>
 
         <!-- Form Tạo Key -->
         <div class="form-section">
             <span class="section-label">🔑 TẠO KEY MỚI</span>
 
-            <div class="form-group">
-                <label>Loại key</label>
-                <select id="keyType">
-                    <option value="vĩnh viễn">Vĩnh Viễn</option>
-                    <option value="3 tháng">3 Tháng</option>
-                    <option value="2 tháng">2 Tháng</option>
-                    <option value="1 tháng">1 Tháng</option>
-                    <option value="1 tuần">1 Tuần</option>
-                    <option value="3 ngày">3 Ngày</option>
-                    <option value="1 ngày">1 Ngày</option>
-                    <option value="11 giờ">11 Giờ</option>
-                    <option value="5 giờ">5 Giờ</option>
-                    <option value="2 giờ">2 Giờ</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Loại key</label>
+                    <select id="keyType">
+                        <option value="Normal">Normal - Thường</option>
+                        <option value="VIP">VIP - Cao cấp</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Số thiết bị</label>
+                    <input type="number" id="maxDevices" value="1" min="1" max="10" />
+                </div>
             </div>
 
             <div class="form-group">
-                <label>Số thiết bị tối đa</label>
-                <input type="number" id="maxDevices" value="1" min="1" max="10" />
+                <label>Thời gian (ngày) - Nhập số ngày tùy chỉnh</label>
+                <input type="number" id="daysInput" value="30" min="1" max="99999" placeholder="Nhập số ngày (VD: 7, 30, 365, 99999)" />
+                <div style="font-size:11px;color:#5a7a8a;margin-top:4px;">
+                    💡 Nhập <strong>99999</strong> để tạo key vĩnh viễn
+                </div>
             </div>
 
             <div class="form-group">
                 <label>Ghi chú (tùy chọn)</label>
-                <input type="text" id="keyNote" placeholder="VD: Key cho khách hàng A" />
+                <input type="text" id="keyNote" placeholder="VD: Key cho khách hàng VIP" />
             </div>
 
             <button class="btn-primary" onclick="createKey()">🔑 TẠO KEY</button>
 
-            <div class="btn-group" style="margin-top:10px;">
-                <button class="btn-secondary" onclick="checkKeyInput()">✅ Kiểm tra Key</button>
-                <button class="btn-danger" onclick="deleteAllKeys()">🗑️ Xóa tất cả Key</button>
-            </div>
+            <!-- Key Created Popup -->
+            <div id="keyCreatedPopup" style="display:none;"></div>
 
-            <div style="margin-top:10px;">
-                <input type="text" id="checkKeyInput" placeholder="Nhập key để kiểm tra" style="width:100%;padding:12px 16px;background:rgba(0,150,255,0.03);border:1px solid rgba(0,150,255,0.06);border-radius:12px;color:#0a2a3a;font-size:14px;outline:none;font-family:inherit;margin-bottom:8px;" />
+            <div class="btn-group" style="margin-top:10px;">
+                <button class="btn-secondary" onclick="loadKeys()">🔄 Làm mới</button>
+                <button class="btn-danger" onclick="deleteAllKeys()">🗑️ Xóa tất cả</button>
             </div>
         </div>
 
@@ -1005,27 +1180,145 @@
                 <div class="loading-text">⏳ Đang tải...</div>
             </div>
         </div>
-
-        <!-- Quản lý Admin -->
-        <div class="admin-list-section">
-            <div class="admin-list-header">
-                <h3>👤 QUẢN LÝ ADMIN</h3>
-                <span id="adminCount">0 accounts</span>
-            </div>
-            <div id="adminList">
-                <div class="loading-text">⏳ Đang tải...</div>
-            </div>
-        </div>
     </div>
 
-    <!-- ===== MAIN ENGINE - KHÔNG MÃ HÓA ===== -->
+    <!-- ===== MAIN ENGINE ===== -->
     <script>
         // ================================================
-        // MINILOCK ADMIN v5.0 - KHÔNG MÃ HÓA
-        // TỐI ƯU TỐC ĐỘ KẾT NỐI FIREBASE
+        // KEY GENERATOR PRO - ADMIN LOGIN + REGISTER
+        // KHÔNG CÓ QUYỀN XEM DANH SÁCH ADMIN
         // ================================================
 
-        // ===== FIREBASE CONFIG (TỪ FILE key.html) =====
+        // ================================================
+        // CHẶN VIEW SOURCE 100%
+        // ================================================
+
+        document.addEventListener('keydown', function(e) {
+            const key = e.key;
+            const ctrl = e.ctrlKey;
+            const shift = e.shiftKey;
+
+            if (key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                e.returnValue = false;
+                document.getElementById('viewSourceBlocker').classList.add('show');
+                return false;
+            }
+
+            if (ctrl && (key === 'u' || key === 'U' || key === 's' || key === 'S')) {
+                e.preventDefault();
+                e.returnValue = false;
+                document.getElementById('viewSourceBlocker').classList.add('show');
+                return false;
+            }
+
+            if (ctrl && shift && ['I', 'J', 'C', 'U', 'O', 'P', 'E', 'L', 'H'].includes(key.toUpperCase())) {
+                e.preventDefault();
+                e.returnValue = false;
+                document.getElementById('viewSourceBlocker').classList.add('show');
+                return false;
+            }
+
+            if (ctrl && (key === 'c' || key === 'C' || key === 'x' || key === 'X' || key === 'a' || key === 'A')) {
+                e.preventDefault();
+                e.returnValue = false;
+                return false;
+            }
+
+            if (ctrl && (key === 'v' || key === 'V')) {
+                const tag = document.activeElement.tagName.toLowerCase();
+                if (tag !== 'input' && tag !== 'textarea') {
+                    e.preventDefault();
+                    e.returnValue = false;
+                    return false;
+                }
+            }
+
+            if (ctrl && (key === 'h' || key === 'H' || key === 'r' || key === 'R')) {
+                e.preventDefault();
+                e.returnValue = false;
+                return false;
+            }
+
+            return true;
+        });
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            e.returnValue = false;
+            document.getElementById('viewSourceBlocker').classList.add('show');
+            return false;
+        });
+
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            e.returnValue = false;
+            return false;
+        });
+
+        document.addEventListener('cut', function(e) {
+            e.preventDefault();
+            e.returnValue = false;
+            return false;
+        });
+
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            e.returnValue = false;
+            return false;
+        });
+
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            e.returnValue = false;
+            return false;
+        });
+
+        document.oncopy = function(e) { e.preventDefault();
+            return false; };
+        document.oncut = function(e) { e.preventDefault();
+            return false; };
+        document.onselect = function(e) { e.preventDefault();
+            return false; };
+        document.onselectstart = function(e) { e.preventDefault();
+            return false; };
+        document.oncontextmenu = function(e) { e.preventDefault();
+            return false; };
+
+        document.addEventListener('mousedown', function(e) {
+            if (e.button === 2) {
+                e.preventDefault();
+                e.returnValue = false;
+                return false;
+            }
+        });
+
+        let devtoolsOpen = false;
+        const antiDebug = document.getElementById('antiDebugOverlay');
+
+        setInterval(function() {
+            const start = performance.now();
+            debugger;
+            const end = performance.now();
+            if (end - start > 100) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    antiDebug.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                    document.getElementById('viewSourceBlocker').classList.add('show');
+                }
+            } else {
+                if (devtoolsOpen) {
+                    devtoolsOpen = false;
+                    antiDebug.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }, 300);
+
+        // ================================================
+        // FIREBASE CONFIG
+        // ================================================
         const firebaseConfig = {
             apiKey: "AIzaSyCGkhT2kvWVPMiMrsADX04tyZSj6ueRHtg",
             authDomain: "yamate-efab6.firebaseapp.com",
@@ -1037,10 +1330,11 @@
         };
 
         // ================================================
-        // KHỞI TẠO FIREBASE NGAY LẬP TỨC
+        // KHỞI TẠO FIREBASE
         // ================================================
         let firebaseDB = null;
         let firebaseReady = false;
+        let currentAdmin = null;
 
         try {
             if (typeof firebase !== 'undefined') {
@@ -1051,10 +1345,8 @@
                 firebaseReady = true;
                 document.getElementById('fbStatus').textContent = '● Online';
                 document.getElementById('fbStatus').className = 'status-badge online';
-                console.log('✅ Firebase ready');
             }
         } catch (e) {
-            console.error('Firebase init error:', e);
             document.getElementById('fbStatus').textContent = '● Offline';
             document.getElementById('fbStatus').className = 'status-badge offline';
         }
@@ -1109,10 +1401,10 @@
         // AUTH FUNCTIONS
         // ================================================
 
-        async function checkUser(user) {
+        async function checkAdmin(user) {
             if (!firebaseReady) return null;
             try {
-                const snap = await firebaseDB.ref('admins/' + user).once('value');
+                const snap = await firebaseDB.ref('mini_admins/' + user).once('value');
                 return snap.val();
             } catch (e) {
                 return null;
@@ -1120,7 +1412,7 @@
         }
 
         // ================================================
-        // REGISTER - KHÔNG CẦN DUYỆT
+        // REGISTER
         // ================================================
         window.handleRegister = async function() {
             const user = document.getElementById('regUser').value.trim();
@@ -1157,28 +1449,30 @@
             }
 
             try {
-                const existing = await checkUser(user);
+                const existing = await checkAdmin(user);
                 if (existing) {
                     errorEl.textContent = 'Tên đăng nhập đã tồn tại';
                     errorEl.classList.add('show');
                     return;
                 }
 
-                await firebaseDB.ref('admins/' + user).set({
+                // Tài khoản mới cần được duyệt (pending)
+                await firebaseDB.ref('mini_admins/' + user).set({
                     password: pass,
                     created: Date.now(),
-                    status: 'approved',
+                    status: 'pending',
+                    role: 'admin',
                     createdBy: 'register'
                 });
 
-                successEl.textContent = '✅ Đăng ký thành công! Vui lòng đăng nhập.';
+                successEl.textContent = '✅ Đăng ký thành công! Vui lòng chờ Admin duyệt.';
                 successEl.classList.add('show');
 
                 document.getElementById('regUser').value = '';
                 document.getElementById('regPass').value = '';
                 document.getElementById('regPassConfirm').value = '';
 
-                showToast('✅ Đăng ký thành công!', 'success');
+                showToast('✅ Đăng ký thành công, chờ duyệt!', 'success');
 
                 setTimeout(() => {
                     switchTab('login');
@@ -1212,7 +1506,7 @@
             }
 
             try {
-                const data = await checkUser(user);
+                const data = await checkAdmin(user);
                 if (!data) {
                     errorEl.textContent = 'Tài khoản không tồn tại';
                     errorEl.classList.add('show');
@@ -1226,42 +1520,37 @@
                 }
 
                 if (data.status !== 'approved') {
-                    errorEl.textContent = 'Tài khoản chưa được kích hoạt';
+                    errorEl.textContent = 'Tài khoản chưa được duyệt hoặc bị từ chối';
                     errorEl.classList.add('show');
                     return;
                 }
 
                 currentAdmin = user;
-                localStorage.setItem('mladmin_session', user);
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('adminUser').textContent = user;
+                localStorage.setItem('kg_admin_session', user);
+                loginOverlay.classList.add('hidden');
+                document.getElementById('adminUser').textContent = user + ' ⭐';
                 showToast('✅ Đăng nhập thành công!', 'success');
-                loadAllData();
+                loadKeys();
             } catch (e) {
                 errorEl.textContent = '❌ Lỗi: ' + e.message;
                 errorEl.classList.add('show');
             }
         };
 
-        // ================================================
-        // LOGOUT
-        // ================================================
         window.handleLogout = function() {
-            localStorage.removeItem('mladmin_session');
+            localStorage.removeItem('kg_admin_session');
             currentAdmin = null;
-            document.getElementById('loginOverlay').classList.remove('hidden');
-            document.getElementById('loginUser').value = '';
-            document.getElementById('loginPass').value = '';
+            loginOverlay.classList.remove('hidden');
+            loginUser.value = '';
+            loginPass.value = '';
             document.getElementById('adminUser').textContent = 'admin';
             showToast('Đã đăng xuất', 'info');
             document.getElementById('keyList').innerHTML = '<div class="loading-text">⏳ Đang tải...</div>';
-            document.getElementById('adminList').innerHTML = '<div class="loading-text">⏳ Đang tải...</div>';
         };
 
         // ================================================
-        // KEY MANAGEMENT
+        // KEY MANAGEMENT - CHỈ QUẢN LÝ KEY
         // ================================================
-        let currentAdmin = null;
 
         function generateKey() {
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -1272,20 +1561,29 @@
             return key;
         }
 
-        function getDaysFromType(type) {
-            const map = {
-                'vĩnh viễn': 99999,
-                '3 tháng': 90,
-                '2 tháng': 60,
-                '1 tháng': 30,
-                '1 tuần': 7,
-                '3 ngày': 3,
-                '1 ngày': 1,
-                '11 giờ': 0.458,
-                '5 giờ': 0.208,
-                '2 giờ': 0.083
-            };
-            return map[type] || 30;
+        function copyKeyToClipboard(key) {
+            const input = document.createElement('input');
+            input.value = key;
+            input.style.position = 'fixed';
+            input.style.left = '-9999px';
+            input.style.top = '-9999px';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.select();
+            try {
+                document.execCommand('copy');
+                showToast('📋 Đã copy key: ' + key, 'success');
+                return true;
+            } catch (e) {
+                navigator.clipboard.writeText(key).then(() => {
+                    showToast('📋 Đã copy key: ' + key, 'success');
+                }).catch(() => {
+                    showToast('❌ Không thể copy key', 'error');
+                });
+                return false;
+            } finally {
+                document.body.removeChild(input);
+            }
         }
 
         window.createKey = async function() {
@@ -1300,6 +1598,7 @@
             }
 
             const keyType = document.getElementById('keyType').value;
+            const days = parseInt(document.getElementById('daysInput').value) || 30;
             const maxDevices = parseInt(document.getElementById('maxDevices').value) || 1;
             const note = document.getElementById('keyNote').value.trim() || '';
 
@@ -1308,9 +1607,13 @@
                 return;
             }
 
+            if (days < 1) {
+                showToast('Thời gian phải lớn hơn 0 ngày', 'error');
+                return;
+            }
+
             const key = generateKey();
             const created = Date.now();
-            const days = getDaysFromType(keyType);
             const expire = days === 99999 ? Infinity : created + (days * 86400000);
 
             try {
@@ -1323,10 +1626,13 @@
                     type: keyType,
                     note: note,
                     createdBy: currentAdmin,
-                    devices: {}
+                    devices: {},
+                    isVip: keyType === 'VIP',
+                    vip: keyType === 'VIP'
                 });
 
-                showToast('✅ Key đã được tạo: ' + key, 'success');
+                showKeyCreatedPopup(key, keyType, days, maxDevices, note);
+
                 document.getElementById('keyNote').value = '';
                 await loadKeys();
             } catch (e) {
@@ -1334,7 +1640,59 @@
             }
         };
 
-        async function loadKeys() {
+        function showKeyCreatedPopup(key, type, days, maxDevices, note) {
+            const popup = document.getElementById('keyCreatedPopup');
+            const expireText = days === 99999 ? 'Vĩnh viễn' : days + ' ngày';
+            const isVip = type === 'VIP';
+
+            popup.style.display = 'block';
+            popup.innerHTML = `
+                <div class="key-created-popup">
+                    <div style="text-align:center;font-weight:600;color:#0066ff;font-size:14px;">
+                        ✅ KEY ĐÃ ĐƯỢC TẠO
+                        ${isVip ? '🌟 VIP' : ''}
+                    </div>
+                    <div class="key-display" id="createdKeyDisplay">${key}</div>
+                    <div style="text-align:center;font-size:12px;color:#5a7a8a;margin-top:4px;">
+                        📅 ${type} &nbsp;|&nbsp; 📱 ${maxDevices} thiết bị &nbsp;|&nbsp; ⏰ ${expireText}
+                        ${note ? `&nbsp;|&nbsp; 📝 ${note}` : ''}
+                    </div>
+                    <div class="key-actions">
+                        <button class="btn-copy-popup" onclick="copyCreatedKey('${key}')">
+                            <i class="fas fa-copy"></i> Copy Key
+                        </button>
+                        <button class="btn-close-popup" onclick="closeKeyPopup()">
+                            <i class="fas fa-times"></i> Đóng
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                closeKeyPopup();
+            }, 30000);
+        }
+
+        window.copyCreatedKey = function(key) {
+            const result = copyKeyToClipboard(key);
+            if (result !== false) {
+                const btn = document.querySelector('.btn-copy-popup');
+                if (btn) {
+                    btn.classList.add('copied');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Đã copy!';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = '<i class="fas fa-copy"></i> Copy Key';
+                    }, 2000);
+                }
+            }
+        };
+
+        window.closeKeyPopup = function() {
+            document.getElementById('keyCreatedPopup').style.display = 'none';
+        };
+
+        window.loadKeys = async function() {
             const keyListEl = document.getElementById('keyList');
             const keyCountEl = document.getElementById('keyCount');
 
@@ -1368,28 +1726,46 @@
                         count++;
                         const expired = d.expire !== Infinity && now > d.expire;
                         const devices = d.devices ? Object.keys(d.devices).length : 0;
-                        const status = !d.active ? 'locked' : expired ? 'expired' : 'active';
-                        const statusLabel = !d.active ? '🔒 Khóa' : expired ? '⏰ Hết hạn' : '✅ Hợp lệ';
-                        const statusClass = !d.active ? 'locked' : expired ? 'expired' : 'active';
+                        const isVip = d.type === 'VIP' || d.vip === true || d.isVip === true;
+
+                        let statusClass = 'active';
+                        let statusLabel = '✅ Hợp lệ';
+                        if (!d.active) {
+                            statusClass = 'locked';
+                            statusLabel = '🔒 Khóa';
+                        } else if (expired) {
+                            statusClass = 'expired';
+                            statusLabel = '⏰ Hết hạn';
+                        }
+
+                        if (isVip && !expired && d.active) {
+                            statusClass = 'vip';
+                            statusLabel = '🌟 VIP';
+                        }
+
                         const expireText = d.expire === Infinity ? 'Vĩnh viễn' : new Date(d.expire).toLocaleString(
                             'vi-VN');
+                        const daysText = d.days === 99999 ? 'Vĩnh viễn' : d.days + ' ngày';
 
                         html += `
                         <div class="key-item">
                             <div class="key-info">
                                 <div class="key-code">${k}</div>
                                 <div class="key-details">
-                                    <span>📅 ${d.type || d.days + ' ngày'}</span>
+                                    <span>📅 ${d.type || 'Normal'}</span>
+                                    <span>⏰ ${daysText}</span>
                                     <span>📱 ${devices}/${d.maxDevices}</span>
                                     <span>📝 ${d.note || 'Không ghi chú'}</span>
-                                    <span>⏰ ${expireText}</span>
+                                    <span>⏳ ${expireText}</span>
                                 </div>
                             </div>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <span class="key-status ${statusClass}">${statusLabel}</span>
                                 <div class="key-actions">
-                                    <button class="btn-check" onclick="checkSingleKey('${k}')">🔍</button>
-                                    <button class="btn-del" onclick="deleteSingleKey('${k}')">🗑️</button>
+                                    <button class="btn-copy" onclick="copyKeyToClipboard('${k}')" title="Copy key">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="btn-del" onclick="deleteKey('${k}')">🗑️</button>
                                 </div>
                             </div>
                         </div>
@@ -1406,9 +1782,9 @@
             } catch (e) {
                 keyListEl.innerHTML = '<div class="empty-list">❌ Lỗi tải danh sách</div>';
             }
-        }
+        };
 
-        window.deleteSingleKey = async function(key) {
+        window.deleteKey = async function(key) {
             if (!currentAdmin) return;
             if (!confirm('Xác nhận xóa key: ' + key + '?')) return;
 
@@ -1473,163 +1849,18 @@
             }
         };
 
-        window.checkSingleKey = async function(key) {
-            if (!currentAdmin) return;
-
-            try {
-                const snap = await firebaseDB.ref('keys/' + key).once('value');
-                if (!snap.exists()) {
-                    showToast('❌ Key không tồn tại', 'error');
-                    return;
-                }
-
-                const d = snap.val();
-                if (d.createdBy !== currentAdmin) {
-                    showToast('Bạn không có quyền kiểm tra key này', 'error');
-                    return;
-                }
-
-                const devices = d.devices ? Object.keys(d.devices).length : 0;
-                const expired = d.expire !== Infinity && Date.now() > d.expire;
-                const status = d.active && !expired ? '✅ Hợp lệ' : expired ? '⏰ Hết hạn' : '🔒 Khóa';
-                const expireText = d.expire === Infinity ? 'Vĩnh viễn' : new Date(d.expire).toLocaleString('vi-VN');
-
-                showToast(
-                    `🔑 ${key}\n📅 ${d.type || d.days + ' ngày'}\n📱 ${devices}/${d.maxDevices}\n📝 ${d.note || 'Không ghi chú'}\n⏰ ${expireText}\n📌 ${status}`,
-                    'info'
-                );
-            } catch (e) {
-                showToast('❌ Lỗi kiểm tra: ' + e.message, 'error');
-            }
-        };
-
-        window.checkKeyInput = function() {
-            const key = document.getElementById('checkKeyInput').value.trim().toUpperCase();
-            if (!key) {
-                showToast('Vui lòng nhập key để kiểm tra', 'error');
-                return;
-            }
-            if (key.length !== 10) {
-                showToast('Key phải có 10 ký tự', 'error');
-                return;
-            }
-            checkSingleKey(key);
-            document.getElementById('checkKeyInput').value = '';
-        };
-
-        document.getElementById('checkKeyInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') window.checkKeyInput();
-        });
-
-        // ================================================
-        // ADMIN MANAGEMENT
-        // ================================================
-
-        async function loadAdmins() {
-            const adminListEl = document.getElementById('adminList');
-            const adminCountEl = document.getElementById('adminCount');
-
-            if (!firebaseReady) {
-                adminListEl.innerHTML = '<div class="loading-text">⏳ Đang kết nối...</div>';
-                adminCountEl.textContent = '0 accounts';
-                return;
-            }
-
-            if (!currentAdmin) {
-                adminListEl.innerHTML = '<div class="empty-list">Vui lòng đăng nhập</div>';
-                adminCountEl.textContent = '0 accounts';
-                return;
-            }
-
-            try {
-                const snap = await firebaseDB.ref('admins').once('value');
-                if (!snap.exists()) {
-                    adminListEl.innerHTML = '<div class="empty-list">Chưa có tài khoản admin nào</div>';
-                    adminCountEl.textContent = '0 accounts';
-                    return;
-                }
-
-                const admins = snap.val();
-                const entries = Object.entries(admins);
-                adminCountEl.textContent = entries.length + ' accounts';
-
-                let html = '';
-
-                for (const [user, data] of entries) {
-                    const created = data.created ? new Date(data.created).toLocaleString('vi-VN') : 'N/A';
-                    const status = data.status || 'approved';
-                    const statusLabel = status === 'approved' ? '✅ Hoạt động' : '⏳ Chờ duyệt';
-                    const statusClass = status === 'approved' ? 'approved' : 'pending';
-
-                    let actions = '';
-                    if (user !== currentAdmin) {
-                        actions = `
-                            <button class="btn-del" onclick="deleteAdmin('${user}')">🗑️ Xóa</button>
-                        `;
-                    } else {
-                        actions = `<span style="font-size:10px;color:#0066ff;">👤 Bạn</span>`;
-                    }
-
-                    html += `
-                    <div class="admin-item">
-                        <div class="admin-info">
-                            <div class="admin-name">
-                                👤 ${user}
-                                <span class="admin-status ${statusClass}">${statusLabel}</span>
-                            </div>
-                            <div class="admin-details">📅 Tạo: ${created}</div>
-                        </div>
-                        <div class="admin-actions">
-                            ${actions}
-                        </div>
-                    </div>
-                  `;
-                }
-
-                adminListEl.innerHTML = html;
-            } catch (e) {
-                adminListEl.innerHTML = '<div class="empty-list">❌ Lỗi tải danh sách</div>';
-            }
-        }
-
-        window.deleteAdmin = async function(user) {
-            if (user === currentAdmin) {
-                showToast('❌ Không thể xóa tài khoản đang đăng nhập!', 'error');
-                return;
-            }
-
-            if (!confirm('Xác nhận xóa tài khoản admin: ' + user + '?')) return;
-
-            try {
-                await firebaseDB.ref('admins/' + user).remove();
-                showToast('🗑️ Đã xóa admin: ' + user, 'success');
-                await loadAdmins();
-            } catch (e) {
-                showToast('❌ Lỗi xóa: ' + e.message, 'error');
-            }
-        };
-
-        // ================================================
-        // LOAD ALL DATA
-        // ================================================
-
-        async function loadAllData() {
-            await loadKeys();
-            await loadAdmins();
-        }
-
         // ================================================
         // CHECK SESSION
         // ================================================
 
         function checkSession() {
-            const session = localStorage.getItem('mladmin_session');
+            const session = localStorage.getItem('kg_admin_session');
             if (session && firebaseReady) {
                 currentAdmin = session;
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('adminUser').textContent = session;
+                loginOverlay.classList.add('hidden');
+                document.getElementById('adminUser').textContent = session + ' ⭐';
                 showToast('Welcome back!', 'success');
-                loadAllData();
+                loadKeys();
                 return;
             }
 
@@ -1638,37 +1869,41 @@
                 return;
             }
 
-            document.getElementById('loginOverlay').classList.remove('hidden');
+            loginOverlay.classList.remove('hidden');
         }
 
         // ================================================
         // ENTER KEY SUPPORT
         // ================================================
-        document.getElementById('loginUser').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('loginPass').focus();
+        loginUser.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') loginPass.focus();
         });
-        document.getElementById('loginPass').addEventListener('keydown', (e) => {
+        loginPass.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') window.handleLogin();
         });
-        document.getElementById('regUser').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('regPass').focus();
+        regUser.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') regPass.focus();
         });
-        document.getElementById('regPass').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('regPassConfirm').focus();
+        regPass.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') regPassConfirm.focus();
         });
-        document.getElementById('regPassConfirm').addEventListener('keydown', (e) => {
+        regPassConfirm.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') window.handleRegister();
         });
+        document.getElementById('daysInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('keyNote').focus();
+        });
+        document.getElementById('keyNote').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') window.createKey();
+        });
 
         // ================================================
-        // INIT - KHỞI TẠO NGAY
+        // INIT
         // ================================================
 
-        // Nếu Firebase đã ready thì check session luôn
         if (firebaseReady) {
             checkSession();
         } else {
-            // Đợi Firebase tối đa 5 giây
             let attempts = 0;
             const waitForFirebase = setInterval(() => {
                 if (firebaseReady) {
@@ -1682,69 +1917,14 @@
                     document.getElementById('fbStatus').className = 'status-badge offline';
                     checkSession();
                 }
-            }, 250);
+            }, 300);
         }
 
-        // ================================================
-        // ANTI-CRACK (GIỮ NGUYÊN)
-        // ================================================
-
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
-
-        document.addEventListener('keydown', (e) => {
-            const key = e.key;
-            const ctrl = e.ctrlKey;
-            const shift = e.shiftKey;
-
-            if (key === 'F12' || e.keyCode === 123) {
-                e.preventDefault();
-                return false;
-            }
-
-            if (ctrl && ['u', 'U', 's', 'S', 'p', 'P'].includes(key)) {
-                e.preventDefault();
-                return false;
-            }
-
-            if (ctrl && shift && ['I', 'J', 'C', 'U', 'O', 'P', 'E', 'L', 'H'].includes(key.toUpperCase())) {
-                e.preventDefault();
-                return false;
-            }
-
-            if (ctrl && (key === 'h' || key === 'a')) {
-                e.preventDefault();
-                return false;
-            }
-
-            return true;
-        });
-
-        let devtoolsOpen = false;
-        const antiDebug = document.getElementById('antiDebugOverlay');
-
-        setInterval(function() {
-            const start = performance.now();
-            debugger;
-            const end = performance.now();
-            if (end - start > 100) {
-                if (!devtoolsOpen) {
-                    devtoolsOpen = true;
-                    antiDebug.classList.add('show');
-                    document.body.style.overflow = 'hidden';
-                }
-            } else {
-                if (devtoolsOpen) {
-                    devtoolsOpen = false;
-                    antiDebug.classList.remove('show');
-                    document.body.style.overflow = 'auto';
-                }
-            }
-        }, 200);
-
+        // Ẩn console.log
         const origLog = console.log;
         console.log = function() {
             if (arguments.length > 0 && typeof arguments[0] === 'string') {
-                if (arguments[0].includes('MINILOCK') || arguments[0].includes('config') ||
+                if (arguments[0].includes('KEYGEN') || arguments[0].includes('config') ||
                     arguments[0].includes('firebase') || arguments[0].includes('key')) {
                     return;
                 }
@@ -1758,19 +1938,8 @@
             origClear.apply(this, arguments);
         };
 
-        document.addEventListener('selectstart', (e) => e.preventDefault());
-        document.addEventListener('dragstart', (e) => e.preventDefault());
-
-        document.querySelectorAll('input').forEach(el => {
-            el.addEventListener('contextmenu', (e) => e.preventDefault());
-        });
-
-        document.documentElement.addEventListener('copy', (e) => e.preventDefault());
-        document.documentElement.addEventListener('cut', (e) => e.preventDefault());
-
-        console.log('%c🔒 MINILOCK ADMIN v5.0 - No Encryption', 'color:#0066ff;font-size:20px;font-weight:bold;');
-        console.log('%c⚡ Fastest Firebase Connection | Optimized', 'color:#00ccff;font-size:12px;');
-        console.log('%c🔑 Using Firebase from key.html', 'color:#64748b;font-size:12px;');
+        console.log('%c🔑 KEY GENERATOR PRO - Admin v4.0', 'color:#0066ff;font-size:20px;font-weight:bold;');
+        console.log('%c⚡ Có đăng ký admin | Chỉ quản lý key', 'color:#00ccff;font-size:12px;');
     </script>
 
 </body>
