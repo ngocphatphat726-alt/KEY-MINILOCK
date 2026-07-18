@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>MINILOCK ADMIN - Key Generator</title>
 
-    <!-- ===== TẢI FONTS TRỰC TIẾP - KHÔNG MÃ HÓA ===== -->
+    <!-- ===== TẢI FONTS TRỰC TIẾP ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
@@ -1018,36 +1018,22 @@
         </div>
     </div>
 
-    <!-- ===== MAIN ENGINE ===== -->
+    <!-- ===== MAIN ENGINE - KHÔNG MÃ HÓA ===== -->
     <script>
         // ================================================
-        // MINILOCK ADMIN v3.0 - KẾT NỐI FIREBASE NHANH
-        // KHÔNG CẦN ADMIN CHÍNH DUYỆT
+        // MINILOCK ADMIN v5.0 - KHÔNG MÃ HÓA
+        // TỐI ƯU TỐC ĐỘ KẾT NỐI FIREBASE
         // ================================================
 
-        // ================================================
-        // FIREBASE CONFIG - MÃ HÓA NHẸ
-        // ================================================
-        function decode(s) {
-            let r = '';
-            for (let i = 0; i < s.length; i += 2) {
-                let c = parseInt(s.substr(i, 2), 16);
-                r += String.fromCharCode(c ^ 0x55);
-            }
-            return r.split('').reverse().join('');
-        }
-
-        const _cfg = "7yI2KSYvLiYnNSQnKCskLSUnNSQnKyUpLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUnNSQnKislLSUnNSQnKSIlLSUnNSQnJiIlLSUnNSQnKCslLSUnNSQnKyklLSUn";
-        const parts = decode(_cfg).split('|');
-
+        // ===== FIREBASE CONFIG (TỪ FILE key.html) =====
         const firebaseConfig = {
-            apiKey: parts[0],
-            authDomain: parts[1],
-            databaseURL: parts[2],
-            projectId: parts[3],
-            storageBucket: parts[4],
-            messagingSenderId: parts[5],
-            appId: parts[6]
+            apiKey: "AIzaSyCGkhT2kvWVPMiMrsADX04tyZSj6ueRHtg",
+            authDomain: "yamate-efab6.firebaseapp.com",
+            databaseURL: "https://yamate-efab6-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "yamate-efab6",
+            storageBucket: "yamate-efab6.firebasestorage.app",
+            messagingSenderId: "352037727100",
+            appId: "1:352037727100:web:abe3e49eb1f7555e9392f9"
         };
 
         // ================================================
@@ -1648,8 +1634,7 @@
             }
 
             if (session && !firebaseReady) {
-                // Đợi Firebase ready
-                setTimeout(checkSession, 500);
+                setTimeout(checkSession, 300);
                 return;
             }
 
@@ -1676,14 +1661,14 @@
         });
 
         // ================================================
-        // INIT - KIỂM TRA SESSION NGAY
+        // INIT - KHỞI TẠO NGAY
         // ================================================
 
         // Nếu Firebase đã ready thì check session luôn
         if (firebaseReady) {
             checkSession();
         } else {
-            // Đợi Firebase
+            // Đợi Firebase tối đa 5 giây
             let attempts = 0;
             const waitForFirebase = setInterval(() => {
                 if (firebaseReady) {
@@ -1697,11 +1682,11 @@
                     document.getElementById('fbStatus').className = 'status-badge offline';
                     checkSession();
                 }
-            }, 300);
+            }, 250);
         }
 
         // ================================================
-        // ULTIMATE ANTI-CRACK
+        // ANTI-CRACK (GIỮ NGUYÊN)
         // ================================================
 
         document.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -1783,8 +1768,9 @@
         document.documentElement.addEventListener('copy', (e) => e.preventDefault());
         document.documentElement.addEventListener('cut', (e) => e.preventDefault());
 
-        console.log('%c🔒 MINILOCK ADMIN v3.0', 'color:#0066ff;font-size:20px;font-weight:bold;');
-        console.log('%c⚡ Fast Firebase Connection | Fully Encrypted', 'color:#00ccff;font-size:12px;');
+        console.log('%c🔒 MINILOCK ADMIN v5.0 - No Encryption', 'color:#0066ff;font-size:20px;font-weight:bold;');
+        console.log('%c⚡ Fastest Firebase Connection | Optimized', 'color:#00ccff;font-size:12px;');
+        console.log('%c🔑 Using Firebase from key.html', 'color:#64748b;font-size:12px;');
     </script>
 
 </body>
